@@ -140,7 +140,7 @@ int main() {
             string keyword;
             cout << "Enter keyword: ";
             getline(cin, keyword);
-            //searchByKeyword(products, keyword);
+            searchByKeyword(products, keyword);
         }   else if (choice == 4) {
             cout << "Exiting system. Goodbye!\n";
         } else {
