@@ -62,7 +62,18 @@ vector<Product> loadProducts(const string &filename) {
 }
 
 //Print Table Header
-void printTableHeader() {}
+void printTableHeader() {
+    cout << left
+         << setw(41) << "\nProduct Name"
+         << setw(10) << "Ages"
+         << setw(8)  << "Gender"
+         << setw(12) << "Category"
+         << setw(10) << "Price"
+         << setw(15) << "Seller"
+         << endl;
+    cout << string(100, '-') << endl;
+}
+
 // Browse by Keyword
 void searchByKeyword(const vector<Product> &products, const string &keyword) {
     bool found = false;
