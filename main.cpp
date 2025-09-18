@@ -60,6 +60,41 @@ vector<Product> loadProducts(const string &filename) {
     }
     return products;
 }
+
+//Print Table Header
+void printTableHeader() {}
+// Browse by Keyword
+void searchByKeyword(const vector<Product> &products, const string &keyword) {
+    bool found = false;
+
+    printTableHeader();
+    for (const auto &p : products) {
+        string lowerName = p.ProductName;
+        string lowerDesc = p.ProductDescription;
+
+        // Convert both to lowercase for case-insensitive search
+        transform(lowerName.begin(), lowerName.end(), lowerName.begin(), ::tolower);
+        transform(lowerDesc.begin(), lowerDesc.end(), lowerDesc.begin(), ::tolower);
+        string lowerKey = keyword;
+        transform(lowerKey.begin(), lowerKey.end(), lowerKey.begin(), ::tolower);
+
+        if (lowerName.find(lowerKey) != string::npos || lowerDesc.find(lowerKey) != string::npos) {
+            found = true;
+            cout << left
+                 << setw(40) << p.ProductName.substr(0,39)  // truncate long names
+                 << setw(10) << p.SuitableAges
+                 << setw(8)  << p.SuitableGender
+                 << setw(12) << p.Category
+                 << setw(10) << fixed << setprecision(2) << p.Price
+                 << setw(15) << p.SellerName.substr(0,14)
+                 << endl;
+        }
+    }
+
+    if (!found) {
+        cout << "No products found matching keyword: " << keyword << "\n";
+    }
+}
 // Browse by Category
 
 // Personalized Recommendation 
