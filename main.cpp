@@ -19,9 +19,47 @@ struct Product {
     string ProductDescription;
 };
 
-vector<Product> loadProducts(const string& filename) {
+vector<Product> loadProducts(const string &filename) {
     vector<Product> products;
-    ifstream file(filename);}
+    ifstream file(filename);
+    if (!file.is_open()) {
+        cerr << "Error opening file: " << filename << endl;
+        return products;
+    }
+
+    string line;
+    bool firstLine = true;
+    while (getline(file, line)) {
+        if (line.empty()) continue;
+
+        if(firstLine) { // Skip header line
+            firstLine = false;
+            if (line.rfind("ID,ProductName", 0) == 0) continue;
+        }
+
+        stringstream ss(line);
+        Product p;
+        string priceStr;
+
+        getline(ss, p.ID, ',');
+        getline(ss, p.ProductName, ',');
+        getline(ss, p.SuitableAges, ',');
+        getline(ss, p.SuitableGender, ',');
+        getline(ss, p.Category, ',');
+        getline(ss, priceStr, ',');
+        getline(ss, p.SellerName, ',');
+        getline(ss, p.ProductDescription, '\n');
+
+        try {
+            p.Price = stod(priceStr);
+        } catch (...) {
+            p.Price = 0.0;
+        }
+
+        products.push_back(p);
+    }
+    return products;
+}
 // Browse by Category
 
 // Personalized Recommendation 
