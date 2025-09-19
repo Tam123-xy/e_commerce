@@ -121,7 +121,7 @@ void searchByCategory(const vector<Product> &products){
         return;
     }
 
-    cout << "Available Categories:\n";
+    cout << "\nAvailable Categories:\n";
     for (size_t i = 0; i < categories.size(); ++i){
         cout << " " << (i + 1) << ". " << categories[i] << "\n";
     }
@@ -304,6 +304,7 @@ int main() {
             string keyword;
             cout << "Enter keyword: ";
             getline(cin, keyword);
+            cout << endl;
             searchByKeyword(products, keyword);
         } else if (choice == 2) {
             searchByCategory(products);
