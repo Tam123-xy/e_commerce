@@ -106,7 +106,87 @@ void searchByKeyword(const vector<Product> &products, const string &keyword) {
         cout << "No products found matching keyword: " << keyword << "\n";
     }
 }
+
 // Browse by Category
+vector<string>getCategories(const vector<Product> &products){
+    set<string> catset;
+    for (const auto &p : products){
+        if (!p.Category.empty()) catset.insert(p.Category);
+    }
+    return vector<string>(catset.begin(), catset.end());
+}
+
+void searchByCategory(const vector<Product> &products){
+    auto categories = getCategories(products);
+    if (categories.empty()){
+        cout << "No categories available.\n";
+        return;
+    }
+
+    cout << "Available Categories:\n";
+    for (size_t i = 0; i < categories.size(); ++i){
+        cout << " " << (i + 1) << ". " << categories[i] << "\n";
+    }
+
+    cout << endl << "Select a category by typing name OR entering its number: ";
+    string input;
+    getline(cin >> ws, input);
+
+    int num = -1;
+    try {
+        num = stoi(input);
+    } catch (...) {
+        
+    }
+
+    string chooseCategory;
+    if (num >= 1 && static_cast<size_t>(num) <= categories.size()){
+        chooseCategory = categories[num - 1];
+    } else {
+        string wanted = input;
+        transform(wanted.begin(), wanted.end(), wanted.begin(), ::tolower);
+
+        for (const auto &category : categories){
+            string c = category;
+            transform(c.begin(), c.end(), c.begin(), ::tolower);
+            if (c == wanted){
+                chooseCategory = category;
+                break;
+            }
+        }
+
+        if(chooseCategory.empty()){
+            cout << endl <<"Category not found.\n";
+            return;
+        }
+    }
+
+    bool found = false;
+    cout << endl << "Products in category: " << chooseCategory << "\n";
+    printTableHeader();
+    for (const auto &p: products){
+        string lowerCategory= p.Category;
+        string choose = chooseCategory;
+        transform(lowerCategory.begin(), lowerCategory.end(), lowerCategory.begin(), ::tolower);
+        transform(choose.begin(), choose.end(), choose.begin(), ::tolower); 
+
+        if (lowerCategory == choose){
+            found = true;
+            cout << left
+                 << setw(40) << p.ProductName.substr(0,39) 
+                 << setw(10) << p.SuitableAges
+                 << setw(8)  << p.SuitableGender
+                 << setw(12) << p.Category
+                 << setw(10) << fixed << setprecision(2) << p.Price
+                 << setw(15) << p.SellerName.substr(0,14)
+                 << endl;
+        }
+    }
+
+    if (!found){
+        cout << "No products found in this category.\n";
+    }
+}
 
 // Personalized Recommendation 
 
@@ -121,7 +201,7 @@ int main() {
     do {
         cout << "\n=== Product Recommendation System ===\n";
         cout << "1. Browse by Keyword\n";
-        //2. Browse by Category 
+        cout << "2. Browse by Category\n";
         //3. Personalized Recommendation 
         cout << "4. Exit\n";
         cout << "Enter choice: ";
@@ -141,6 +221,8 @@ int main() {
             cout << "Enter keyword: ";
             getline(cin, keyword);
             searchByKeyword(products, keyword);
+        }   else if (choice == 2) {
+            searchByCategory(products);
         }   else if (choice == 4) {
             cout << "Exiting system. Goodbye!\n";
         } else {
