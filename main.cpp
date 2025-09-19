@@ -61,10 +61,9 @@ vector<Product> loadProducts(const string &filename) {
     return products;
 }
 
-//Print Table Header
 void printTableHeader() {
-    cout << left
-         << setw(41) << "\nProduct Name"
+    cout << left 
+         << setw(40) << "Product Name"
          << setw(10) << "Ages"
          << setw(8)  << "Gender"
          << setw(12) << "Category"
@@ -74,7 +73,6 @@ void printTableHeader() {
     cout << string(100, '-') << endl;
 }
 
-// Browse by Keyword
 void searchByKeyword(const vector<Product> &products, const string &keyword) {
     bool found = false;
 
@@ -91,7 +89,7 @@ void searchByKeyword(const vector<Product> &products, const string &keyword) {
 
         if (lowerName.find(lowerKey) != string::npos || lowerDesc.find(lowerKey) != string::npos) {
             found = true;
-            cout << left
+            cout << left 
                  << setw(40) << p.ProductName.substr(0,39)  // truncate long names
                  << setw(10) << p.SuitableAges
                  << setw(8)  << p.SuitableGender
@@ -136,7 +134,7 @@ void searchByCategory(const vector<Product> &products){
     try {
         num = stoi(input);
     } catch (...) {
-        
+
     }
 
     string chooseCategory;
@@ -168,12 +166,12 @@ void searchByCategory(const vector<Product> &products){
         string lowerCategory= p.Category;
         string choose = chooseCategory;
         transform(lowerCategory.begin(), lowerCategory.end(), lowerCategory.begin(), ::tolower);
-        transform(choose.begin(), choose.end(), choose.begin(), ::tolower); 
+        transform(choose.begin(), choose.end(), choose.begin(), ::tolower);
 
         if (lowerCategory == choose){
             found = true;
-            cout << left
-                 << setw(40) << p.ProductName.substr(0,39) 
+            cout << left 
+                 << setw(40) << p.ProductName.substr(0,39)  // truncate long names
                  << setw(10) << p.SuitableAges
                  << setw(8)  << p.SuitableGender
                  << setw(12) << p.Category
@@ -188,7 +186,93 @@ void searchByCategory(const vector<Product> &products){
     }
 }
 
-// Personalized Recommendation 
+void personalizedRecommendation(const vector<Product> &products) {
+    string gender;
+    int age;
+    string category;
+    double maxPrice;
+
+    cout << "Enter gender (Male/Female/Unisex/Any): ";
+    getline(cin >> ws, gender);
+    transform(gender.begin(), gender.end(), gender.begin(), ::tolower);
+
+    cout << "Enter your age: ";
+    cin >> age;
+    cin.ignore();
+
+    auto categories = getCategories(products);
+    cout << "\nAvailable Categories:\n";
+    for (size_t i = 0; i < categories.size(); ++i) {
+        cout << " " << (i + 1) << ". " << categories[i] << "\n";
+    }
+
+    cout << "Select a category (name or number): ";
+    string input;
+    getline(cin, input);
+
+    int num = -1;
+    try { num = stoi(input); } catch (...) {}
+
+    if (num >= 1 && static_cast<size_t>(num) <= categories.size()) {
+        category = categories[num - 1];
+    } else {
+        category = input;
+    }
+
+    cout << "Enter maximum price: ";
+    cin >> maxPrice;
+    cin.ignore();
+
+    bool found = false;
+    cout << "\nPersonalized Products for you:\n";
+    printTableHeader();
+
+    for (const auto &p : products) {
+        string prodGender = p.SuitableGender;
+        string prodCategory = p.Category;
+        transform(prodGender.begin(), prodGender.end(), prodGender.begin(), ::tolower);
+        transform(prodCategory.begin(), prodCategory.end(), prodCategory.begin(), ::tolower);
+
+        bool genderMatch = (gender == "any" || prodGender == "unisex" || prodGender == gender);
+
+        bool ageMatch = false;
+        if (!p.SuitableAges.empty()) {
+            if (p.SuitableAges.find('-') != string::npos) {
+                int minAge, maxAge;
+                char dash;
+                stringstream ss(p.SuitableAges);
+                ss >> minAge >> dash >> maxAge;
+                ageMatch = (age >= minAge && age <= maxAge);
+            } else if (p.SuitableAges.find('+') != string::npos) {
+                int minAge = stoi(p.SuitableAges.substr(0, p.SuitableAges.find('+')));
+                ageMatch = (age >= minAge);
+            }
+        }
+
+        string inputCategory = category;
+        transform(inputCategory.begin(), inputCategory.end(), inputCategory.begin(), ::tolower);
+        bool categoryMatch = (prodCategory == inputCategory);
+
+        bool priceMatch = (p.Price <= maxPrice);
+
+        if (genderMatch && ageMatch && categoryMatch && priceMatch) {
+            found = true;
+            cout << left 
+                 << setw(40) << p.ProductName.substr(0,39)
+                 << setw(10) << p.SuitableAges
+                 << setw(8)  << p.SuitableGender
+                 << setw(12) << p.Category
+                 << setw(10) << fixed << setprecision(2) << p.Price
+                 << setw(15) << p.SellerName.substr(0,14)
+                 << endl;
+        }
+    }
+
+    if (!found) {
+        cout << "No products match your preferences.\n";
+    }
+}
+
 
 int main() {
     vector<Product> products = loadProducts("data.txt");
@@ -202,7 +286,7 @@ int main() {
         cout << "\n=== Product Recommendation System ===\n";
         cout << "1. Browse by Keyword\n";
         cout << "2. Browse by Category\n";
-        //3. Personalized Recommendation 
+        cout << "3. Personalized Recommendation\n";
         cout << "4. Exit\n";
         cout << "Enter choice: ";
 
@@ -221,9 +305,11 @@ int main() {
             cout << "Enter keyword: ";
             getline(cin, keyword);
             searchByKeyword(products, keyword);
-        }   else if (choice == 2) {
+        } else if (choice == 2) {
             searchByCategory(products);
-        }   else if (choice == 4) {
+        } else if (choice == 3) {
+            personalizedRecommendation(products);
+        } else if (choice == 4) {
             cout << "Exiting system. Goodbye!\n";
         } else {
             cout << "Invalid choice. Try again.\n";
